@@ -24,7 +24,6 @@ static void count_layer_object (QCADDesignObject *object, gpointer user_data)
     stats->output_count++;
   }
 
-  /* QCA clocks are represented by the cell's clock option. */
   if (cell->cell_options.clock >= 0 &&
       (guint) (cell->cell_options.clock + 1) > stats->clock_zone_count)
     stats->clock_zone_count = (guint) cell->cell_options.clock + 1;
@@ -60,21 +59,15 @@ gboolean qcade_plus_analyze_design (DESIGN *design,
     return FALSE;
 
   memset (stats, 0, sizeof (*stats));
-
   stats->layer_count = (guint) g_list_length (design->lstLayers);
 
   for (iter = design->lstLayers; iter != NULL; iter = iter->next)
   {
     QCADLayer *layer = QCAD_LAYER (iter->data);
-
     if (layer == NULL)
       continue;
-
-    qcad_layer_objects_foreach (layer,
-                                FALSE,
-                                TRUE,
-                                count_layer_object,
-                                stats);
+    qcad_layer_objects_foreach (layer, FALSE, TRUE,
+                                count_layer_object, stats);
   }
 
   if (design->bus_layout != NULL)
