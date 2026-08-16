@@ -27,7 +27,8 @@ jobs:
             gettext \
             libgtk2.0-dev \
             libtool \
-            pkg-config
+            pkg-config \
+            xvfb
 
       - name: Configure upstream QCADesigner-E
         working-directory: upstream/QCADesigner-E/QCADesignerE
@@ -44,6 +45,20 @@ jobs:
         run: |
           test -x src/QCADesigner
           file src/QCADesigner
+
+      - name: GUI smoke test with sample QCA design
+        working-directory: upstream/QCADesigner-E/QCADesignerE
+        run: |
+          set +e
+          timeout 8s xvfb-run -a ./src/QCADesigner ./sample.qca > "$GITHUB_WORKSPACE/qcadesigner-smoke.log" 2>&1
+          status=$?
+          set -e
+          cat "$GITHUB_WORKSPACE/qcadesigner-smoke.log"
+          if [ "$status" -ne 124 ]; then
+            echo "QCADesigner exited unexpectedly with status $status"
+            exit "$status"
+          fi
+          echo "QCADesigner remained alive under Xvfb for the smoke-test window."
 
       - name: Stage build artifact
         run: |
