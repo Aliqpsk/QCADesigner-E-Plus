@@ -9,7 +9,7 @@
  */
 
 #include <glib.h>
-#include "../../../../upstream/QCADesigner-E/QCADesignerE/src/design.h"
+#include "../../../upstream/QCADesigner-E/QCADesignerE/src/design.h"
 
 typedef struct
 {
