@@ -1,15 +1,10 @@
 #ifndef QCADE_PLUS_CIRCUIT_ANALYZER_H
 #define QCADE_PLUS_CIRCUIT_ANALYZER_H
 
-/*
- * QCADesigner-E+ analysis API.
- *
- * This layer intentionally depends on the existing QCADesigner-E DESIGN
- * model. It does not duplicate the QCA physics or simulation equations.
- */
-
+/* QCADesigner-E+ analysis API. The implementation consumes the same DESIGN
+ * model as the engine build; it does not duplicate QCA simulation physics. */
 #include <glib.h>
-#include "../../../upstream/QCADesigner-E/QCADesignerE/src/design.h"
+#include "design.h"
 
 typedef struct
 {
@@ -27,7 +22,6 @@ typedef struct
   double area;
 } QCADEPlusCircuitStats;
 
-/* Analyze a loaded QCADesigner-E DESIGN. Returns FALSE for a NULL design. */
 gboolean qcade_plus_analyze_design (DESIGN *design,
                                     QCADEPlusCircuitStats *stats);
 
