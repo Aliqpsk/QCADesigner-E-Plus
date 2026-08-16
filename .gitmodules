@@ -1,0 +1,3 @@
+[submodule "upstream/QCADesigner-E"]
+	path = upstream/QCADesigner-E
+	url = https://github.com/FSillT/QCADesigner-E.git
