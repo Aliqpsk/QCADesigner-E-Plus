@@ -21,14 +21,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            autoconf \
-            automake \
-            gettext \
-            libgtk2.0-dev \
-            libtool \
-            pkg-config \
-            xvfb
+          sudo apt-get install -y autoconf automake gettext libgtk2.0-dev libtool pkg-config xvfb
 
       - name: Configure upstream QCADesigner-E
         working-directory: upstream/QCADesigner-E/QCADesignerE
@@ -58,18 +51,12 @@ jobs:
             echo "QCADesigner exited unexpectedly with status $status"
             exit "$status"
           fi
-          echo "QCADesigner remained alive under Xvfb for the smoke-test window."
-
-      - name: Stage build artifact
-        run: |
-          mkdir -p build/artifact
-          cp upstream/QCADesigner-E/QCADesignerE/src/QCADesigner build/artifact/QCADesigner
 
       - name: Upload baseline executable
         uses: actions/upload-artifact@v4
         with:
           name: qcadesigner-e-baseline
-          path: build/artifact/QCADesigner
+          path: upstream/QCADesigner-E/QCADesignerE/src/QCADesigner
 
   build-plus-engine:
     runs-on: ubuntu-22.04
@@ -81,17 +68,19 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: Show Plus source layout
+        run: |
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          echo "GITHUB_REF=$GITHUB_REF"
+          git status --short
+          test -f scripts/materialize-engine.sh
+          test -d upstream/QCADesigner-E
+          git -C upstream/QCADesigner-E rev-parse HEAD
+
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            autoconf \
-            automake \
-            gettext \
-            libgtk2.0-dev \
-            libtool \
-            pkg-config \
-            xvfb
+          sudo apt-get install -y autoconf automake gettext libgtk2.0-dev libtool pkg-config xvfb
 
       - name: Materialize development engine from pinned upstream
         run: |
@@ -99,6 +88,8 @@ jobs:
           scripts/materialize-engine.sh
           test -f engine/QCADesigner-E/QCADesignerE/configure
           test -f engine/QCADesigner-E/UPSTREAM_BASELINE.txt
+          echo "Materialized engine tree:"
+          find engine/QCADesigner-E -maxdepth 2 -type f | head -50
 
       - name: Configure Plus development engine
         working-directory: engine/QCADesigner-E/QCADesignerE
@@ -116,6 +107,7 @@ jobs:
           test -x src/QCADesigner
           file src/QCADesigner
           test -f ../UPSTREAM_BASELINE.txt
+          echo "PLUS_ENGINE_EXECUTABLE=$PWD/src/QCADesigner"
 
       - name: Plus GUI smoke test with sample QCA design
         working-directory: engine/QCADesigner-E/QCADesignerE
@@ -129,7 +121,6 @@ jobs:
             echo "Plus QCADesigner exited unexpectedly with status $status"
             exit "$status"
           fi
-          echo "Plus engine remained alive under Xvfb for the smoke-test window."
 
       - name: Upload Plus engine artifact
         uses: actions/upload-artifact@v4
