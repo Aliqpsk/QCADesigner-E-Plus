@@ -39,11 +39,19 @@ jobs:
         working-directory: upstream/QCADesigner-E/QCADesignerE
         run: make -j"$(nproc)"
 
-      - name: Install upstream QCADesigner-E
+      - name: Verify upstream executable
         working-directory: upstream/QCADesigner-E/QCADesignerE
-        run: make install
-
-      - name: Verify executable exists
         run: |
-          test -x build/install/bin/QCADesigner
-          file build/install/bin/QCADesigner
+          test -x src/QCADesigner
+          file src/QCADesigner
+
+      - name: Stage build artifact
+        run: |
+          mkdir -p build/artifact
+          cp upstream/QCADesigner-E/QCADesignerE/src/QCADesigner build/artifact/QCADesigner
+
+      - name: Upload baseline executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: qcadesigner-e-baseline
+          path: build/artifact/QCADesigner
