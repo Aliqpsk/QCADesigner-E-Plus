@@ -32,6 +32,7 @@ jobs:
       - name: Configure upstream QCADesigner-E
         working-directory: upstream/QCADesigner-E/QCADesignerE
         run: |
+          chmod +x configure
           ./configure --prefix="$GITHUB_WORKSPACE/build/install"
 
       - name: Build upstream QCADesigner-E
