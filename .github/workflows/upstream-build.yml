@@ -1,4 +1,4 @@
-name: Upstream baseline build
+name: Upstream baseline and Plus engine build
 
 on:
   push:
@@ -70,6 +70,72 @@ jobs:
         with:
           name: qcadesigner-e-baseline
           path: build/artifact/QCADesigner
+
+  build-plus-engine:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout QCADesigner-E-Plus with upstream submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            gettext \
+            libgtk2.0-dev \
+            libtool \
+            pkg-config \
+            xvfb
+
+      - name: Materialize development engine from pinned upstream
+        run: |
+          chmod +x scripts/materialize-engine.sh
+          scripts/materialize-engine.sh
+          test -f engine/QCADesigner-E/QCADesignerE/configure
+          test -f engine/QCADesigner-E/UPSTREAM_BASELINE.txt
+
+      - name: Configure Plus development engine
+        working-directory: engine/QCADesigner-E/QCADesignerE
+        run: |
+          chmod +x configure
+          ./configure --prefix="$GITHUB_WORKSPACE/build/plus-install"
+
+      - name: Build Plus development engine
+        working-directory: engine/QCADesigner-E/QCADesignerE
+        run: make -j"$(nproc)"
+
+      - name: Verify Plus executable comes from engine tree
+        working-directory: engine/QCADesigner-E/QCADesignerE
+        run: |
+          test -x src/QCADesigner
+          file src/QCADesigner
+          test -f ../UPSTREAM_BASELINE.txt
+
+      - name: Plus GUI smoke test with sample QCA design
+        working-directory: engine/QCADesigner-E/QCADesignerE
+        run: |
+          set +e
+          timeout 8s xvfb-run -a ./src/QCADesigner ./sample.qca > "$GITHUB_WORKSPACE/qcadesigner-plus-smoke.log" 2>&1
+          status=$?
+          set -e
+          cat "$GITHUB_WORKSPACE/qcadesigner-plus-smoke.log"
+          if [ "$status" -ne 124 ]; then
+            echo "Plus QCADesigner exited unexpectedly with status $status"
+            exit "$status"
+          fi
+          echo "Plus engine remained alive under Xvfb for the smoke-test window."
+
+      - name: Upload Plus engine artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qcadesigner-e-plus-engine
+          path: engine/QCADesigner-E/QCADesignerE/src/QCADesigner
 
   build-windows:
     runs-on: windows-2022
