@@ -1,0 +1,20 @@
+# QCADesigner-E+ GUI patch specification
+# Target: upstream commit 3bc90302bddacebfff838c74fb91cc56500387ea
+#
+# Verified upstream integration points:
+#   QCADesignerE/src/interface.c  -> create_main_window()
+#   QCADesignerE/src/callbacks.c  -> main-window callbacks
+#   QCADesignerE/src/main.c       -> application entry point
+#
+# Required implementation:
+#   1. Add an Analysis top-level menu to the main menubar.
+#   2. Add Circuit Statistics item.
+#   3. Add Energy Analysis item.
+#   4. Add Energy Map item, initially insensitive/disabled.
+#   5. Route callbacks through qcade_plus analysis APIs.
+#
+# Compatibility constraints:
+#   - GTK2 conventions used by upstream must be preserved.
+#   - Do not modify simulation behavior.
+#   - Dialogs are read-only.
+#   - Energy Map is enabled only after validated per-cell energy data exists.
