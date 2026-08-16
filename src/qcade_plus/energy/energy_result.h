@@ -9,6 +9,11 @@ extern "C" {
  * Public, physics-neutral representation of one QCADesigner-E energy result.
  * Values are copied from the upstream engine; this layer does not redefine
  * the underlying energy model.
+ *
+ * Compatibility note: upstream's printed "Total energy dissipation" is based
+ * on the integrated bath channel. Its "E_Error_total" combines bath + clock
+ * + I/O. Input/output channels are reported separately and are not silently
+ * added to either upstream aggregate.
  */
 typedef struct
 {
@@ -28,8 +33,11 @@ typedef struct
   QCADEPlusEnergyChannels integrated;
 } QCADEPlusEnergyResult;
 
-/* Sum the five upstream channels without changing their definitions. */
-double qcade_plus_energy_channels_total(const QCADEPlusEnergyChannels *channels);
+/* Upstream-compatible aggregate: bath + clock + I/O. */
+double qcade_plus_energy_channels_error_total(const QCADEPlusEnergyChannels *channels);
+
+/* Upstream-compatible reported total energy: bath only. */
+double qcade_plus_energy_bath_total(const QCADEPlusEnergyChannels *channels);
 
 #ifdef __cplusplus
 }
