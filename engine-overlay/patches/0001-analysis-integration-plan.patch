@@ -1,0 +1,19 @@
+# QCADesigner-E+ GUI integration patch
+#
+# Staging marker only. The actual patch must be generated against the pinned
+# upstream commit after the complete source tree is materialized. Do not apply
+# this file as a normal unified diff yet.
+#
+# Target upstream files:
+#   QCADesignerE/src/main.c
+#   QCADesignerE/src/interface.c
+#   QCADesignerE/src/callbacks.c
+#
+# Planned integration:
+#   Analysis -> Circuit Statistics
+#   Analysis -> Energy Analysis
+#   Analysis -> Energy Map (disabled until per-cell energy is validated)
+#
+# Safety requirement:
+#   The analysis UI must be read-only and must not mutate DESIGN or simulation
+#   configuration.
