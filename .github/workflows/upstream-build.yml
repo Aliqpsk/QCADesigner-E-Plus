@@ -1,0 +1,48 @@
+name: Upstream baseline build
+
+on:
+  push:
+    branches: [development]
+  pull_request:
+    branches: [main, development]
+  workflow_dispatch:
+
+jobs:
+  build-upstream:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout QCADesigner-E-Plus with upstream submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            gettext \
+            libgtk2.0-dev \
+            libtool \
+            pkg-config
+
+      - name: Configure upstream QCADesigner-E
+        working-directory: upstream/QCADesigner-E/QCADesignerE
+        run: |
+          ./configure --prefix="$GITHUB_WORKSPACE/build/install"
+
+      - name: Build upstream QCADesigner-E
+        working-directory: upstream/QCADesigner-E/QCADesignerE
+        run: make -j"$(nproc)"
+
+      - name: Install upstream QCADesigner-E
+        working-directory: upstream/QCADesigner-E/QCADesignerE
+        run: make install
+
+      - name: Verify executable exists
+        run: |
+          test -x build/install/bin/QCADesigner
+          file build/install/bin/QCADesigner
