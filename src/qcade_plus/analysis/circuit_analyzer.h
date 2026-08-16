@@ -14,6 +14,10 @@
 typedef struct
 {
   guint cell_count;
+  guint cell_input_count;
+  guint cell_output_count;
+  guint bus_input_count;
+  guint bus_output_count;
   guint input_count;
   guint output_count;
   guint layer_count;
